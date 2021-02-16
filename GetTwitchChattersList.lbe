@@ -1,0 +1,46 @@
+[extension_name]
+Get Twitch Chatters List
+[insert_external]
+<div><p><a href="https://github.com/shimonami/LB-Get-Twitch-Chatters-List" target=_blank>Get Twitch Chatters List</a> 0.0.1 extension is installed.</p></div>
+[insert_command]
+lioranboardclient.send('{\
+  "type":"MESSAGE",\
+  "topic":"ExtensionCommand",\
+  "name":"Get Twitch Chatters List",\
+  "boxcount":1,\
+  "boxname1":"channel_name",\
+  "boxtype1":"string",\
+}');
+
+[insert_hook]
+case "GetTwitchChattersList": {
+  getTwitchChattersList(LioranBoardJSON.channel_name);
+}break
+
+[insert_script]
+function getTwitchChattersList(channelName){
+  const setCORSBypass = 'https://cors-anywhere.herokuapp.com/'
+
+  fetch(`${setCORSBypass}https://tmi.twitch.tv/group/user/${channelName}/chatters`)
+    .then(response => response.json())
+    .then(data => {
+      const { moderators, viewers, vips } = data.chatters;
+      
+      const chatters = [...moderators, ...viewers, ...vips];
+
+      chatters.forEach((chatter) => {
+        lioranboardclient.send(`{\
+          "type":"MESSAGE",\
+          "topic":"AddStack",\
+          "name":"TwitchChattersList",\
+          "position":"top",\
+          "value":"${chatter}"\
+        }`);
+      });
+    })
+    .catch(error => {
+      console.log('Error getting twitch chatters list', error);
+      lioranboardclient.send('{"type":"MESSAGE","topic":"AlertMessage","message":"GetTwitchChattersList extension couldn\'t get the required values."}');
+    });
+}
+[insert_over]
