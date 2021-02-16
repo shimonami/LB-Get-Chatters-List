@@ -2,7 +2,7 @@
 A plugin to get the chatters names on your twitch channel.
 
 ### How to Install
-- :exclamation::exclamation::exclamation: **Download [this file](https://drive.google.com/file/d/1Q0aMc29CVsIJw1rQ0ki69BA9NEo4bjCL).**
+- :exclamation::exclamation::exclamation: **Download [this file](https://drive.google.com/file/d/1lb2Ex0WHALRmd5nAwUGDhT3KwUibXX5s).**
 - Move it to your LioranBoard `extension` folder.
 - Start your `LioranBoard receiver`.
 - Click on `Install Extension`.

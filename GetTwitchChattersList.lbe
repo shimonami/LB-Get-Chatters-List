@@ -1,7 +1,7 @@
 [extension_name]
 Get Twitch Chatters List
 [insert_external]
-<div><p><a href="https://github.com/shimonami/LB-Get-Twitch-Chatters-List" target=_blank>Get Twitch Chatters List</a> 0.0.1 extension is installed.</p></div>
+<div><p><a href="https://github.com/shimonami/LB-Get-Twitch-Chatters-List" target=_blank>Get Twitch Chatters List</a> 0.1.0 extension is installed.</p></div>
 [insert_command]
 lioranboardclient.send('{\
   "type":"MESSAGE",\
@@ -18,17 +18,37 @@ case "GetTwitchChattersList": {
 }break
 
 [insert_script]
-function getTwitchChattersList(channelName){
-  const setCORSBypass = 'https://cors-anywhere.herokuapp.com/'
+function getListOfKnownTwitchBots() {
+  return fetch(`https://api.twitchinsights.net/v1/bots/online`)
+    .then(response => response.json())
+    .then(data => {
+      const { bots } = data;
 
-  fetch(`${setCORSBypass}https://tmi.twitch.tv/group/user/${channelName}/chatters`)
+      return bots.map(bot => bot[0]);
+    })
+    .catch(error => {
+      console.log('Error getting list of known bots', error);
+      return ['twitchdetails', 'commanderroot', 'anotherttvviewer', 'extramoar', 'abbottcostello'];
+    });
+};
+
+async function getTwitchChattersList(channelName) {
+  const setCORSBypass = 'https://cors-anywhere.herokuapp.com/';
+
+  const botsList = await this.getListOfKnownTwitchBots();
+
+  await fetch(`${setCORSBypass}https://tmi.twitch.tv/group/user/${channelName}/chatters`)
     .then(response => response.json())
     .then(data => {
       const { moderators, viewers, vips } = data.chatters;
-      
+
       const chatters = [...moderators, ...viewers, ...vips];
 
       chatters.forEach((chatter) => {
+        if (botsList.includes(chatter)) {
+          return;
+        };
+
         lioranboardclient.send(`{\
           "type":"MESSAGE",\
           "topic":"AddStack",\
@@ -42,5 +62,5 @@ function getTwitchChattersList(channelName){
       console.log('Error getting twitch chatters list', error);
       lioranboardclient.send('{"type":"MESSAGE","topic":"AlertMessage","message":"GetTwitchChattersList extension couldn\'t get the required values."}');
     });
-}
+};
 [insert_over]
